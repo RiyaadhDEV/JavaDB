@@ -1,0 +1,131 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.authenticaterun;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.sql.SQLException;
+
+/**
+ *
+ * @author hasse
+ */
+public class LoginGUI extends JFrame {
+    
+    private JLabel title, firstName, surname, email, password,login;
+    private JTextField nameField, surnameField, emailField, passwordField;
+    private JComboBox titlebox;
+    private JButton save, clear;
+    private JPanel northPanel, southPanel, centerPanel;
+    private DBConnection dbConnection;
+    
+    
+    public LoginGUI(){
+        dbConnection = new DBConnection();
+        try {
+            dbConnection.connect();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle the connection error appropriately
+        }
+        
+         login = new JLabel("Create Account");
+         title = new JLabel("Title:");
+         firstName = new JLabel("First Name:");
+         surname = new JLabel("Surname:");
+         email = new JLabel("Email:");
+         password = new JLabel("Password:");
+         
+         nameField = new JTextField();
+         surnameField = new JTextField();
+         emailField = new JTextField();
+         passwordField = new JTextField();
+         
+         titlebox = new JComboBox(new String[]{"Adv", "Dr", "Miss", "Mr","Mrs","Prof"});
+         
+         save = new JButton("Save");
+         clear = new JButton("Clear");
+         
+         northPanel = new JPanel();
+         centerPanel = new JPanel();
+         southPanel = new JPanel();    
+    }
+    
+    public void setGUI(){
+        southPanel.setLayout(new GridLayout(1,2));
+        centerPanel.setLayout(new GridLayout(5,2));
+        northPanel.setLayout(new GridLayout(1,1));
+        
+        
+        southPanel.add(clear);
+        southPanel.add(save);
+        
+        northPanel.add(login);
+        
+        centerPanel.add(title);
+        centerPanel.add(titlebox);
+        centerPanel.add(firstName);
+        centerPanel.add(nameField);
+        centerPanel.add(surname);
+        centerPanel.add(surnameField);
+        centerPanel.add(email);
+        centerPanel.add(emailField);
+        centerPanel.add(password);
+        centerPanel.add(passwordField);
+        
+        
+        this.add(northPanel, BorderLayout.NORTH);
+        this.add(centerPanel, BorderLayout.CENTER);
+        this.add(southPanel, BorderLayout.SOUTH);
+        
+   save.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+         UserDAO user1 = new UserDAO(dbConnection);
+
+    
+        User user = new User();
+
+        Object title = titlebox.getSelectedItem();
+        String selectedText = title.toString();
+        user.setTitle(selectedText);
+
+        String userName = nameField.getText();
+        user.setFirstName(userName);
+        
+        String userSurname = surnameField.getText();
+        user.setSurname(userSurname);
+        
+        
+        String userEmail = emailField.getText();
+        user.setEmail(userEmail);
+        
+        String userPassword = passwordField.getText();
+        user.setPassword(userPassword);
+
+        try {
+            user1.createDatabaseStatement(user);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        
+        JOptionPane.showMessageDialog(null,"Account created");
+         
+    }});
+   
+   clear.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+         nameField.setText("");
+         surnameField.setText("");
+         emailField.setText("");
+         passwordField.setText("");
+        
+
+         
+    }});
+    }
+}
