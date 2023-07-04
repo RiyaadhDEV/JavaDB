@@ -1,0 +1,27 @@
+
+import java.sql.Connection;
+import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
+import java.sql.SQLException;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.sql.*;
+import javax.swing.*;
+
+public class MarathonRun {
+public static void main(String[] args) {
+    
+     MarathonGUI guiObject = new MarathonGUI(); 
+    guiObject.setVisible(true);
+    guiObject.setDefaultCloseOperation(EXIT_ON_CLOSE);
+    guiObject.setSize(600,600);
+    guiObject.setGUI();
+    
+  DBConnection dbConnection = new DBConnection();
+        try {
+            dbConnection.connect();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle the connection error appropriately
+        }
+
+}}
