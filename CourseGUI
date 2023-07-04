@@ -1,0 +1,190 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.courserun;
+
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.sql.SQLException;
+
+/**
+ *
+ * @author RIyaadh
+ */
+public class CourseGUI extends JFrame
+{
+    
+    private JLabel sCode,sDesc;
+    private JTextField sCodeTextField, sDescriptionTextField;
+    private JButton saveButton, cancelButton, readButton, FillComboButton, deleteButton;
+    private JPanel containerPanel, westPanel, eastPanel, centerPanel, southPanel, eastPanel2,coursePanel,descriptionPanel;
+    private JComboBox titleBox;
+    private DefaultTableModel tableModel;
+    private JTable table;
+    private DBConnection dbConnection;
+    
+    public CourseGUI(){
+        dbConnection = new DBConnection();
+        try {
+            dbConnection.connect();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle the connection error appropriately
+        }
+        // ...
+    
+        // ...
+    
+
+        
+        sCode = new JLabel("Subject Code");
+        sDesc = new JLabel("Subject Description");
+        
+        sCodeTextField = new JTextField();
+        sDescriptionTextField = new JTextField();
+        
+        saveButton = new JButton ("Save");
+        cancelButton = new JButton ("Cancel");
+        readButton = new JButton ("Read");
+        FillComboButton = new JButton ("Fill Combo");
+        deleteButton = new JButton ("Delete");
+        
+        tableModel = new DefaultTableModel();
+        table = new JTable(tableModel);
+        tableModel.addColumn("Subject Code");
+        tableModel.addColumn("Description");
+  
+ eastPanel = new JPanel();
+ eastPanel2 = new JPanel();
+ southPanel = new JPanel();
+ centerPanel = new JPanel();
+ westPanel = new JPanel();
+ containerPanel = new JPanel();
+ coursePanel = new JPanel();
+ descriptionPanel = new JPanel();       
+        titleBox = new JComboBox();
+          
+        
+    }
+    
+    public void setGUI(){
+        
+ southPanel.setLayout(new GridLayout(1,5));      
+ centerPanel.setLayout(new GridLayout(1,2));
+ containerPanel.setLayout(new GridLayout(2,1));
+ coursePanel.setLayout(new GridLayout(1,2));
+ descriptionPanel.setLayout(new GridLayout(1,2));
+  
+ westPanel.setLayout(new GridLayout(1,4));
+ eastPanel.setLayout(new GridLayout(1,1));
+ eastPanel2.setLayout(new GridLayout(9,1));
+ 
+ coursePanel.add(sCode);
+ coursePanel.add(sCodeTextField);
+ 
+ descriptionPanel.add(sDesc);
+ descriptionPanel.add(sDescriptionTextField);
+ 
+ containerPanel.add(coursePanel);
+ containerPanel.add(descriptionPanel);
+ 
+ southPanel.add(saveButton);
+ southPanel.add(cancelButton);
+ southPanel.add(readButton);
+ southPanel.add(FillComboButton);
+ southPanel.add(deleteButton);
+ 
+ westPanel.add(containerPanel);
+ 
+ 
+ eastPanel.add(new JScrollPane(table));
+ eastPanel2.add(new JPanel());
+ eastPanel2.add(new JPanel());
+ eastPanel2.add(new JPanel());
+ eastPanel2.add(new JPanel());
+ eastPanel2.add(titleBox);
+ eastPanel2.add(new JPanel());
+ eastPanel2.add(new JPanel());
+ eastPanel2.add(new JPanel());
+ eastPanel2.add(new JPanel());
+ 
+
+ centerPanel.add(westPanel);
+ centerPanel.add(eastPanel);
+
+ 
+ 
+ 
+ 
+ 
+
+this.add(centerPanel, BorderLayout.CENTER);
+this.add(southPanel, BorderLayout.SOUTH);
+this.add(eastPanel2, BorderLayout.EAST);
+   
+ saveButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+         SubjectDAO sub1 = new SubjectDAO(dbConnection);
+
+    
+        Subject sub = new Subject();
+
+        String code = sCodeTextField.getText();
+        sub.setSubCode(code);
+
+        String description = sDescriptionTextField.getText();
+        sub.setSubDescription(description);
+
+        try {
+            sub1.createDatabaseStatement(sub);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    
+
+    
+    
+    }});
+ 
+ readButton.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+           SubjectDAO sub = new SubjectDAO(dbConnection);
+ try {
+            sub.readDatabaseStatement(tableModel);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+    
+    
+    }});
+ 
+ cancelButton.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+
+    
+    
+    }});
+ 
+ deleteButton.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+             
+                
+           SubjectDAO sub = new SubjectDAO(dbConnection);
+ try {
+            sub.DeleteDatabaseStatement(tableModel);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+
+    
+    
+    }});
+         
+}}
