@@ -1,0 +1,176 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.marathonrun;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.ResultSet;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+
+/**
+ *
+ * @author hasse
+ */
+public class MarathonGUI extends JFrame {
+    
+    private JLabel heading, raceCode, firstName, lastName, raceType, club;
+    private JTextField raceCodeField, firstNameField, lastNameField;
+    private JComboBox<String> raceTypeCombo;
+    private JRadioButton yes, no;
+    private JButton save, reset, exit;
+    private DBConnection dbConnection;
+    private JPanel south, north, center1, center2, container;
+    
+   
+
+     
+    public MarathonGUI(){
+        dbConnection = new DBConnection();
+        try {
+            dbConnection.connect();
+        } catch (SQLException e) {
+            System.out.println("exception");
+            // Handle the connection error appropriately
+        }
+        
+        heading = new JLabel("Marathon Event Registration");
+        raceCode  = new JLabel("Race Code");
+        firstName = new JLabel("First Name");
+        lastName = new JLabel("Last Name");
+        club = new JLabel("Do you belong to a club?");
+        raceType = new JLabel("Race Type");
+        
+        raceCodeField = new JTextField();
+        firstNameField = new JTextField();
+        lastNameField = new JTextField();
+        
+        
+        
+        yes = new JRadioButton("Yes");
+        no = new JRadioButton("No");
+        
+        save = new JButton("Save");
+        reset = new JButton("Reset");
+        exit = new JButton("Exit");
+        
+        north = new JPanel();
+        center1 = new JPanel();
+        center2 = new JPanel();
+        south = new JPanel();
+        container = new JPanel();
+        
+        
+        
+        raceTypeCombo = new JComboBox<>();
+RaceDOA anotherClass = new RaceDOA(dbConnection);
+ try {
+           anotherClass.readDatabaseStatement(raceTypeCombo);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+      
+    }
+    
+    public void setGUI(){
+ container.setLayout(new GridLayout(2,1));  
+ south.setLayout(new GridLayout(1,3));      
+ center1.setLayout(new GridLayout(4,2));
+ center2.setLayout(new GridLayout(1,3));
+ north.setLayout(new GridLayout(1,1));
+ 
+        
+ north.add(heading);
+ 
+ south.add(save);
+ south.add(reset);
+ south.add(exit);
+
+ center1.add(raceCode);
+ center1.add(raceCodeField);
+ center1.add(firstName);
+ center1.add(firstNameField);
+ center1.add(lastName);
+ center1.add(lastNameField);
+ center1.add(raceType);
+ center1.add(raceTypeCombo);
+ 
+ center2.add(club);
+ center2.add(yes);
+ center2.add(no);
+ 
+ container.add(center1);
+ container.add(center2);
+ 
+this.add(container, BorderLayout.CENTER);
+this.add(south, BorderLayout.SOUTH);
+this.add(north, BorderLayout.NORTH);
+
+
+ 
+    
+
+ save.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+             
+             RaceDOA doa = new RaceDOA(dbConnection);
+             
+             
+             
+             
+             
+             Race r = new Race();
+             String code = raceCodeField.getText();
+             r.setCode(code);
+             
+             String name = firstNameField.getText();
+             r.setName(name);
+             
+             String surname = lastNameField.getText();
+             r.setSurname(surname);
+             
+             if(yes.isSelected()==true && no.isSelected()==true){
+                 
+                JOptionPane.showMessageDialog(null,"Only select one by club");
+                yes.setSelected(false);
+                no.setSelected(false);
+             }if(yes.isSelected()==true){
+                 
+                 String yesOption = "Yes";
+                 r.setOption(yesOption);
+          }if(no.isSelected()==true){
+                 
+                 String noOption = "No";
+                 r.setOption(noOption);
+         }else{
+              
+          }
+              String cb = raceTypeCombo.getSelectedItem().toString();
+              r.setType(cb);
+            
+              
+        try {
+            doa.SaveDatabaseStatement(r);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        
+        
+              
+             
+             
+     
+
+
+    
+    
+    }});
+         
+}}
