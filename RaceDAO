@@ -1,0 +1,80 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.marathonrun;
+
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.ResultSet;
+import javax.swing.*;
+
+/**
+ *
+ * @author hasse
+ */
+public class RaceDOA {
+    
+    private Connection connection;
+    
+    
+    public RaceDOA(DBConnection dbConnection) {
+        this.connection = dbConnection.getConnection();
+    }
+     
+      public void readDatabaseStatement(JComboBox<String> comboBox) throws SQLException {
+        String query = "SELECT * FROM RACETYPETABLE";
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
+     
+        while (resultSet.next()) {
+            String type = resultSet.getString("MARATHONTYPE");
+            
+           comboBox.addItem(type);
+        }
+        resultSet.close();
+        statement.close();
+    }
+      
+      public void SaveDatabaseStatement(Race race) throws SQLException {
+  String raceCode = race.getCode();
+
+// Check if the RACECODE already exists in the database
+String checkQuery = "SELECT RACECODE FROM RACETABLE WHERE RACECODE = '" + raceCode + "'";
+Statement checkStatement = connection.createStatement();
+ResultSet checkResultSet = checkStatement.executeQuery(checkQuery);
+
+if (checkResultSet.next()) {
+    // RACECODE already exists in the database
+    JOptionPane.showMessageDialog(null, "Code already found");
+}else{
+
+            // Construct the query
+        String query = "INSERT INTO RACETABLE (RACECODE, NAME, SURNAME, RACETYPE, CLUB) VALUES ('" + race.getCode() + "', '" 
+                + race.getName() + "', '" + race.getSurname() + "', '" + race.getType() + "', '" + race.getOption() + "')";
+        Statement insertStatement = connection.createStatement();
+        insertStatement.executeUpdate(query);
+        
+        insertStatement.close();
+
+       JOptionPane.showMessageDialog(null, "Record inserted successfully");
+    }
+
+checkResultSet.close();
+checkStatement.close();
+
+
+      }
+
+}
+   
+    
+        
+
+
+    
+    
+     
+  
