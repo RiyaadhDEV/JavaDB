@@ -1,0 +1,42 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.authenticaterun;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+/**
+ *
+ * @author hasse
+ */
+public class DBConnection {
+    private Connection con;
+    
+    public void connect() throws SQLException{    
+   
+        String dbURL = "jdbc:derby://localhost:1527/UserDetails";
+        String username = "yati";
+        String password = "yati";
+        //specify the full pathname of the database
+       
+        System.out.println("About to get a connection....");
+        con = DriverManager.getConnection(dbURL, username, password); 
+        System.out.println("Connection Established Successfully....");
+      
+   
+//----------------------------------------------------
+
+
+
+    }
+     public Connection getConnection() {
+        return con;
+    }
+   
+}
+
+    
+
