@@ -1,0 +1,52 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.authenticaterun;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import javax.swing.*;
+
+/**
+ *
+ * @author hasse
+ */
+public class UserDAO {
+    private Connection connection;
+    
+    public UserDAO(DBConnection dbConnection) {
+        this.connection = dbConnection.getConnection();
+    }
+    
+    public void createDatabaseStatement(User user) throws SQLException {
+        String query = "INSERT INTO USERDETAILS (TITLE, FIRSTNAME, SURNAME, EMAIL, PASSWORD) VALUES ('" + user.getTitle() + "', '" 
+                + user.getFirstName() + "', '" + user.getSurname() + "', '" + user.getEmail() + "', '" + user.getPassword() + "')";
+        Statement statement = connection.createStatement();
+        statement.executeUpdate(query);
+        statement.close();
+    }
+    
+    public void readDatabaseStatement(User user) throws SQLException {
+        String userEmail = user.getUserEmailVal();
+        String userPass = user.getUserPassVal();
+
+            // Construct the query
+        String query = "SELECT * FROM USERDETAILS WHERE EMAIL = '" + userEmail + "' AND PASSWORD = '" + userPass + "'";
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
+        
+        if (resultSet.next()) {
+                // User found, perform actions
+                JOptionPane.showMessageDialog(null,"Login successful");
+            } else {
+                // User not found
+                 JOptionPane.showMessageDialog(null,"Unsuccessful");
+            }
+        resultSet.close();
+        statement.close();
+    }
+    
+}
