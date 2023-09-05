@@ -1,0 +1,394 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
+ */
+
+/**
+ *
+ * @author 215167023
+ */
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
+ */
+package client;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.net.*;
+import java.io.*;
+import java.util.*;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+
+/**
+ *
+ * @author hasse
+ */
+public class Client extends JFrame {
+    private static JPanel top, second, third, fourth,fifth, container;
+    
+    private static JLabel titleLabel, directorLabel, genreLabel;
+    
+    private static JTextField titleField, directorField;
+    
+    private static JButton findButton, retrieveButton, addButton, exitButton;
+    
+    private static JComboBox combos;
+    
+    private static JTextArea area;
+
+    private static Socket socket;
+    
+    private static ObjectInputStream in;
+    
+    private static ObjectOutputStream out;
+    
+    private static Object recievedObject;
+    
+    private static DefaultComboBoxModel comboModel;
+    
+    private static JFrame frame;
+     
+   
+    
+    public Client(){
+        
+        
+
+    }
+    public static void streams(){
+          try {
+            socket = new Socket("127.0.0.1",12345);
+        } catch (IOException ioe) {
+            System.out.println("IO Exception " + ioe.getMessage());
+        }
+           try {
+      out = new ObjectOutputStream(socket.getOutputStream());
+            out.flush();
+            in = new ObjectInputStream(socket.getInputStream());
+        } catch (IOException ioe) {
+            System.out.println("Exception in getStreams()" + ioe.getMessage());
+        }
+    }
+          
+          
+    
+        
+    public void setGUI(){
+        
+      
+     
+    
+    frame = new JFrame("Movie inventory app");
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setSize(500, 400);
+    frame.setLayout(new BorderLayout());
+    
+        top = new JPanel();
+        second = new JPanel();
+        third = new JPanel();
+        fourth = new JPanel();
+        fifth = new JPanel();
+        container = new JPanel();
+        
+        titleLabel = new JLabel("Title");
+        directorLabel = new JLabel("Director");
+        genreLabel = new JLabel("Genre");
+        
+        
+        titleField = new JTextField();
+        directorField = new JTextField();
+      
+  
+        retrieveButton = new JButton("Retrieve");
+        addButton = new JButton("Add");
+        exitButton = new JButton("Exit");
+        findButton = new JButton("Find");
+        
+        combos = new JComboBox();
+        area = new JTextArea();
+        
+        
+
+
+        comboModel = new DefaultComboBoxModel();
+        
+        comboModel.addElement("Select");
+        comboModel.addElement("Comedy");
+        comboModel.addElement("Action ");
+        comboModel.addElement("Horror");
+        comboModel.addElement("Romance");
+        comboModel.addElement("Sci-Fi");
+        comboModel.addElement("Thriller");
+        comboModel.addElement("Drama");
+
+
+        combos.setModel(comboModel);
+
+
+        
+   
+    
+        
+        top.setLayout(new GridLayout(1,6));
+        second.setLayout(new GridLayout(1,1));
+        third.setLayout(new GridLayout(2,2));
+        fourth.setLayout(new GridLayout(1,1));
+        fifth.setLayout(new GridLayout(1,1));
+        container.setLayout(new GridLayout(1,4));
+        
+        top.add(new JPanel());
+        top.add(new JPanel());
+        top.add(genreLabel);
+        top.add(combos);
+        top.add(new JPanel());
+        top.add(new JPanel());
+        
+        
+        second.add(new JPanel());
+      
+        
+        third.add(titleLabel);
+        third.add(titleField);
+        
+        third.add(directorLabel);
+        third.add(directorField);
+        
+        fourth.add(area);
+        
+        
+        fifth.add(addButton);
+        fifth.add(retrieveButton);
+        fifth.add(findButton);
+        fifth.add(exitButton);
+        
+
+    
+        
+        
+        container.add(top);
+        container.add(second);
+        container.add(third);
+        container.add(fourth);
+        container.add(fifth);
+        
+        
+       frame.add(container, BorderLayout.CENTER);
+       
+       frame.setVisible(true);
+        
+        
+        
+        
+          addButton.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+             
+           String movieT =  titleField.getText();
+           String movieD = directorField.getText();
+           String genre = combos.getSelectedItem().toString();
+           
+      
+           
+           Movie m = new Movie(movieT,movieD,genre);
+           
+           try{
+           out.writeObject(m);
+            } catch(IOException f){
+            System.out.println("Error in sending add client");
+        }
+    
+    }});
+          
+            retrieveButton.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+             try{
+             out.writeObject("RETRIEVE");
+             out.flush();
+             
+             ArrayList <Movie>  retriever = new ArrayList<>();
+             
+            recievedObject =(ArrayList)in.readObject();
+            
+             
+             
+             retriever = (ArrayList)recievedObject;
+             
+                        
+               
+             
+             for(int i = 0; i<retriever.size();i++){
+                 area.append(retriever.get(i).getMovieTitle()+ " " + retriever.get(i).getDirectorTitle()+ " " + retriever.get(i).getMovieGenre()+ " ");}
+             } catch(IOException f){
+            System.out.println("Error in sending add client");
+        } catch(ClassNotFoundException f){
+            
+             System.out.println("Error in sending add client");
+                
+                }
+             
+        
+    
+    
+    }});
+            
+              exitButton.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+
+    
+    
+    }});
+              
+                findButton.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+              String id = combos.getSelectedItem().toString();
+             
+             String identifier = "#1";
+             try{
+             out.writeObject(id+" "+identifier);
+              System.out.println("sent");
+             }catch(IOException k){
+                 System.out.println("error in combo");
+             }
+             try{
+             recievedObject = (ArrayList)in.readObject();
+              System.out.println("recieved");
+             }catch(IOException i){
+                 System.out.println("error in reading");
+             }catch(ClassNotFoundException q){
+                 System.out.println("error in reading");
+             }
+             
+             ArrayList <Movie>  retrievers = new ArrayList<>();
+             ArrayList <Movie>  datas = new ArrayList<>();
+             
+             retrievers = (ArrayList)recievedObject;
+             
+             
+             
+             for(int i = 0; i<retrievers.size();i++){
+             if(retrievers.get(i).getMovieGenre().equals(id)){
+             datas.add(retrievers.get(i)); 
+              System.out.println(datas);
+             }}
+             
+              System.out.println("Condition True");
+             
+             
+             ArrayList<Movie> studentclonerss = (ArrayList)datas.clone();
+      
+        for(int i = 0; i<studentclonerss.size(); i++)
+        {
+           String userData = studentclonerss.toString();
+           System.out.println(userData);
+        area.append(studentclonerss.get(i).getMovieTitle()+ " " + studentclonerss.get(i).getDirectorTitle()+ " " + studentclonerss.get(i).getMovieGenre()+ " ");
+        System.out.println(studentclonerss.get(i));}
+                    
+        }
+
+    
+    
+    });
+                
+                   combos.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+           /*  String id = combos.getSelectedItem().toString();
+             
+             String identifier = "#2";
+             try{
+             out.writeObject(id+" "+identifier);
+              System.out.println("sent");
+             }catch(IOException k){
+                 System.out.println("error in combo");
+             }
+             try{
+             recievedObject = (ArrayList)in.readObject();
+              System.out.println("recieved");
+             }catch(IOException i){
+                 System.out.println("error in reading");
+             }catch(ClassNotFoundException q){
+                 System.out.println("error in reading");
+             }
+             
+             ArrayList <Student>  retrievers = new ArrayList<>();
+             ArrayList <Student>  datas = new ArrayList<>();
+             
+             retrievers = (ArrayList)recievedObject;
+             
+             
+             
+             for(int i = 0; i<retrievers.size();i++){
+             if(retrievers.get(i).getId().equals(id)){
+             datas.add(retrievers.get(i)); 
+              System.out.println(datas);
+             }}
+             
+              System.out.println("Condition True");
+             
+             
+             ArrayList<Student> studentclonerss = (ArrayList)datas.clone();
+      
+        for(int i = 0; i<studentclonerss.size(); i++)
+        {
+           Object[] userData = {studentclonerss.get(i).getName(), studentclonerss.get(i).getId(),studentclonerss.get(i).getScore()};
+           System.out.println(studentclonerss.get(i).getName());
+           System.out.println(userData.toString());
+        tableModel.addRow(userData);
+        System.out.println(studentclonerss.get(i));
+                    
+        }
+        
+    
+             
+             
+             
+       
+    
+    */
+    }});
+    }
+    
+    
+                   
+        
+        
+        
+         
+         
+        
+        
+        
+    
+    
+   
+        
+        
+       
+        
+        
+        
+    
+    
+    
+    
+    
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        
+        
+        Client c  = new Client();
+        c.setGUI();
+       // c.streams();
+      
+       
+        
+        
+    }
+}
+    
+
