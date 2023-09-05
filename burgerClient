@@ -1,0 +1,340 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
+ */
+package client;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.table.DefaultTableModel;
+import java.net.*;
+import java.io.*;
+import java.util.*;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import javax.swing.table.TableRowSorter;
+
+/**
+ *
+ * @author hasse
+ */
+public class Client extends JFrame {
+    private static JPanel top, second, third, fourth,fifth, container;
+    
+    private static JLabel nameLabel, idLabel, scoreLabel;
+    
+    private static JTextField nameField, idField, scoreField, searchDeleteField;
+    
+    private static JButton deleteButton, retrieveButton, addButton, exitButton, searchButton;
+    
+    private static JComboBox combos;
+    
+    private static JTextArea area;
+    
+    private static JTable table;
+    
+    private  static DefaultTableModel tableModel;
+    
+    private static Socket socket;
+    
+    private static ObjectInputStream in;
+    
+    private static ObjectOutputStream out;
+    
+    private static Object recievedObject;
+    
+    private static DefaultComboBoxModel comboModel;
+    
+    private static JFrame frame;
+     
+   
+    
+    public Client(){
+        
+        
+
+    }
+    public static void streams(){
+          try {
+            socket = new Socket("127.0.0.1",12345);
+        } catch (IOException ioe) {
+            System.out.println("IO Exception " + ioe.getMessage());
+        }
+           try {
+      out = new ObjectOutputStream(socket.getOutputStream());
+            out.flush();
+            in = new ObjectInputStream(socket.getInputStream());
+        } catch (IOException ioe) {
+            System.out.println("Exception in getStreams()" + ioe.getMessage());
+        }
+    }
+          
+          
+    
+        
+    public void setGUI(){
+        
+      
+     
+    
+     frame = new JFrame("Student Record Management");
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setSize(500, 400);
+    frame.setLayout(new BorderLayout());
+    
+        top = new JPanel();
+        second = new JPanel();
+        third = new JPanel();
+        fourth = new JPanel();
+        fifth = new JPanel();
+        container = new JPanel();
+        
+        nameLabel = new JLabel("Name");
+        idLabel = new JLabel("ID");
+        scoreLabel = new JLabel("Score");
+        
+        nameField = new JTextField();
+        idField = new JTextField();
+        scoreField = new JTextField();
+        searchDeleteField = new JTextField();
+        
+        deleteButton = new JButton("Delete");
+        retrieveButton = new JButton("Retrieve");
+        addButton = new JButton("Add");
+        exitButton = new JButton("Exit");
+        searchButton = new JButton("Search");
+        
+        combos = new JComboBox();
+        area = new JTextArea();
+        table = new JTable();
+        
+tableModel = new DefaultTableModel();
+
+comboModel = new DefaultComboBoxModel();
+
+
+table = new JTable(tableModel);
+
+
+        
+   
+    
+        
+        top.setLayout(new GridLayout(4,2));
+        second.setLayout(new GridLayout(1,6));
+        third.setLayout(new GridLayout(1,1));
+        fourth.setLayout(new GridLayout(1,1));
+        fifth.setLayout(new GridLayout(1,1));
+        container.setLayout(new GridLayout(5,1));
+        
+        top.add(nameLabel);
+        top.add(nameField);
+        top.add(idLabel);
+        top.add(idField);
+        top.add(scoreLabel);
+        top.add(scoreField);
+        top.add(searchDeleteField);
+        top.add(searchButton);
+        
+        second.add(addButton);
+        second.add(retrieveButton);
+        second.add(deleteButton);
+        second.add(exitButton);
+        
+        third.add(area);
+        
+        fourth.add(combos);
+        
+tableModel.addColumn("Name");
+tableModel.addColumn("ID");
+tableModel.addColumn("Score");
+        
+        fifth.add(new JScrollPane(table));
+        
+        
+        container.add(top);
+        container.add(second);
+        container.add(third);
+        container.add(fourth);
+        container.add(fifth);
+        
+        
+       frame.add(container, BorderLayout.CENTER);
+       
+       frame.setVisible(true);
+        
+        
+        deleteButton.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+
+    
+    
+    }});
+        
+          addButton.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+             
+           String name =  nameField.getText();
+           String id = idField.getText();
+           String converter = scoreField.getText();
+           
+           int score = Integer.parseInt(converter);
+           
+           Student s = new Student(name,id,score);
+           
+           try{
+           out.writeObject(s);
+            } catch(IOException f){
+            System.out.println("Error in sending add client");
+        }
+    
+    }});
+          
+            retrieveButton.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+             try{
+             out.writeObject("RETRIEVE");
+             out.flush();
+             
+             ArrayList <Student>  retriever = new ArrayList<>();
+             
+            recievedObject =(ArrayList)in.readObject();
+            
+             
+             
+             retriever = (ArrayList)recievedObject;
+             
+                        
+               
+             
+             for(int i = 0; i<retriever.size();i++){
+                 area.append(retriever.get(i).getName()+ " " + retriever.get(i).getId()+ " " + retriever.get(i).getScore()+ " ");
+             }
+             
+              for(int i = 0; i<retriever.size();i++){
+                 comboModel.addElement(retriever.get(i).getId());
+             }
+              
+              combos.setModel(comboModel);
+              } catch(IOException f){
+            System.out.println("Error in retrieve client");
+        }catch(ClassNotFoundException p){
+            System.out.println("Error in retrieve client");
+        }
+    
+    
+    }});
+            
+              exitButton.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+
+    
+    
+    }});
+              
+                searchButton.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+
+    
+    
+    }});
+                
+                   combos.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+             String id = combos.getSelectedItem().toString();
+             
+             String identifier = "#2";
+             try{
+             out.writeObject(id+" "+identifier);
+              System.out.println("sent");
+             }catch(IOException k){
+                 System.out.println("error in combo");
+             }
+             try{
+             recievedObject = (ArrayList)in.readObject();
+              System.out.println("recieved");
+             }catch(IOException i){
+                 System.out.println("error in reading");
+             }catch(ClassNotFoundException q){
+                 System.out.println("error in reading");
+             }
+             
+             ArrayList <Student>  retrievers = new ArrayList<>();
+             ArrayList <Student>  datas = new ArrayList<>();
+             
+             retrievers = (ArrayList)recievedObject;
+             
+             
+             
+             for(int i = 0; i<retrievers.size();i++){
+             if(retrievers.get(i).getId().equals(id)){
+             datas.add(retrievers.get(i)); 
+              System.out.println(datas);
+             }}
+             
+              System.out.println("Condition True");
+             
+             
+             ArrayList<Student> studentclonerss = (ArrayList)datas.clone();
+      
+        for(int i = 0; i<studentclonerss.size(); i++)
+        {
+           Object[] userData = {studentclonerss.get(i).getName(), studentclonerss.get(i).getId(),studentclonerss.get(i).getScore()};
+           System.out.println(studentclonerss.get(i).getName());
+           System.out.println(userData.toString());
+        tableModel.addRow(userData);
+        System.out.println(studentclonerss.get(i));
+                    
+        }
+        
+    
+             
+             
+             
+       
+    
+    
+    }});
+    
+    }
+                   
+        
+        
+        
+         
+         
+        
+        
+        
+    
+    
+   
+        
+        
+       
+        
+        
+        
+    
+    
+    
+    
+    
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        
+        
+        Client c  = new Client();
+        c.setGUI();
+        c.streams();
+      
+       
+        
+        
+    }
+    
+}
