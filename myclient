@@ -1,0 +1,277 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
+ */
+package clientstudy;
+
+
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.ArrayList;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+public class ClientStudy extends JFrame{
+    private static ObjectInputStream in;
+    private static ObjectOutputStream out;
+    private static JFrame frame;
+    private static JTextField nameField;
+    private static JTextField idField;
+    private static JTextField scoreField;
+    private static JTextField searchField;
+    private static JTextArea recordsTextArea;
+    private static JButton addButton;
+    private static JButton retrieveButton;
+    private static JButton deleteButton;
+     private static JButton searchButton;
+    private static Socket socket;
+
+// Connect to the server, create io streams, and call the method that defines the gui
+    public ClientStudy(){
+    }
+    
+    private static void streams(){
+          try {
+            socket = new Socket("127.0.0.1",12345);
+        } catch (IOException ioe) {
+            System.out.println("IO Exception " + ioe.getMessage());
+        }
+     try {
+      out = new ObjectOutputStream(socket.getOutputStream());
+            out.flush();
+            in = new ObjectInputStream(socket.getInputStream());
+        } catch (IOException ioe) {
+            System.out.println("Exception in getStreams()" + ioe.getMessage());
+        }
+    }
+
+     
+    private void createAndShowGUI() {
+    frame = new JFrame("Student Record Management");
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setSize(500, 400);
+    frame.setLayout(new BorderLayout());
+    
+    searchButton = new JButton("Search");
+
+    JPanel inputPanel = new JPanel(new GridLayout(4, 2));
+    inputPanel.add(new JLabel("Name:"));
+    nameField = new JTextField();
+    inputPanel.add(nameField);
+    inputPanel.add(new JLabel("ID:"));
+    idField = new JTextField();
+    inputPanel.add(idField);
+    inputPanel.add(new JLabel("Score:"));
+    scoreField = new JTextField();
+    inputPanel.add(scoreField);
+     searchField = new JTextField();
+     inputPanel.add(searchField);
+     inputPanel.add(searchButton);
+
+    frame.add(inputPanel, BorderLayout.NORTH);
+
+    addButton = new JButton("Add Record");
+   
+    retrieveButton = new JButton("Retrieve Records");
+   
+    
+    
+    deleteButton = new JButton("Search");
+   
+
+    JPanel buttonPanel = new JPanel();
+    buttonPanel.add(addButton);
+    buttonPanel.add(retrieveButton);
+    buttonPanel.add(deleteButton);
+    frame.add(buttonPanel, BorderLayout.CENTER);
+
+    recordsTextArea = new JTextArea(10,10);
+    recordsTextArea.setEditable(false);
+    frame.add(new JScrollPane(recordsTextArea), BorderLayout.SOUTH);
+
+    frame.setVisible(true);
+    
+    addButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+                            addStudentRecord();
+				
+			}
+		});
+    
+    retrieveButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+                            retrieveStudentRecords();
+				
+			}
+		});
+    deleteButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+                            deleteStudentRecords();
+		
+			}
+		});
+    searchButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+                            searchStudentRecords();
+                            
+				
+			}
+		});
+
+    }//end createAndShowGUI()
+
+//------------------------------------------------------------------------------    
+    
+// In this method, construct a Student object that is initialized with the values entered by the user on the gui.   
+// Send the object to the server.
+// Clear the textfields and place the cursor in the name textfield    
+ private static void addStudentRecord() {
+    String name = nameField.getText();
+    String id = idField.getText();
+    String scores = scoreField.getText();
+    double score = (Double.parseDouble(scores));
+    
+    Student newStudent = new Student(name,id,score);
+    try {
+    out.writeObject(newStudent);
+    out.flush();
+     } catch (IOException ioe) {
+            System.out.println("Exception in Sending()" + ioe.getMessage());
+        }
+
+   }//end addStudentRecord(){
+
+  private static void retrieveStudentRecords(){
+      try{
+      out.writeObject("RETRIEVE");}
+      catch (IOException iod) {
+            System.out.println("Error in retrive " + iod.getMessage());
+        }
+         try {
+      ArrayList <Student> list = (ArrayList)in.readObject();
+      displayStudentRecords(list);
+          } catch (IOException ioe) {
+            System.out.println("Exception in Retrievesearch()" + ioe.getMessage());
+        }catch (ClassNotFoundException ioe) {
+            System.out.println("Exception in Retrievesearch()" + ioe.getMessage());
+        }
+         
+        
+}
+  
+    private static void searchStudentRecords(){
+      try{
+       String searchAttach = "1#";
+       String sender = searchField.getText()+" " +searchAttach;
+   
+      out.writeObject(sender);}
+      catch (IOException iod) {
+            System.out.println("Error in retrive " + iod.getMessage());
+        }
+         try {
+      ArrayList <Student> datass = (ArrayList)in.readObject();
+      displaySearchRecords(datass);
+         
+         } catch (IOException ioe) {
+            System.out.println("Exception in Retrievesearch()" + ioe.getMessage());
+        }catch (ClassNotFoundException ioe) {
+            System.out.println("Exception in Retrievesearch()" + ioe.getMessage());
+        }
+         
+        
+}
+
+//------------------------------------------------------------------------------    
+
+// In this method, you must append the records in the arraylist (sent as a parameter) in the textarea.
+    private static void displayStudentRecords(ArrayList<Student> studentList) {
+       for(int i = 0; i < studentList.size();i++ ){
+           recordsTextArea.append(studentList.get(i).toString());
+           
+       }
+    }
+       
+        private static void displaySearchRecords(ArrayList<Student> studentListss) {
+       for(int i = 0; i < studentListss.size();i++ ){
+           recordsTextArea.append(studentListss.get(i).toString());
+           
+       }
+        }
+       
+        private static void displayDeleteRecords(ArrayList<Student> studentLists) {
+       for(int i = 0; i < studentLists.size();i++ ){
+           recordsTextArea.append(studentLists.get(i).toString());
+           
+       }
+        
+
+    }
+        
+         private static void deleteStudentRecords(){
+      try{
+       
+       String sender = searchField.getText();
+   
+      out.writeObject(sender);}
+      catch (IOException iod) {
+            System.out.println("Error in retrive " + iod.getMessage());
+        }
+         try {
+      ArrayList <Student> datas = (ArrayList)in.readObject();
+      displayDeleteRecords(datas);
+         
+         } catch (IOException ioe) {
+            System.out.println("Exception in Retrievesearch()" + ioe.getMessage());
+        }catch (ClassNotFoundException ioe) {
+            System.out.println("Exception in Retrievesearch()" + ioe.getMessage());
+        }
+         
+        
+}
+
+//------------------------------------------------------------------------------    
+
+ 
+    private static void closeConnection() {
+       try{ out.writeObject("EXIT");
+            System.out.println("Exit sent");
+            out.flush();
+            out.close();
+            in.close();
+            socket.close();
+        } catch (IOException iod) {
+            System.out.println("Error closing " + iod.getMessage());
+        }
+
+   }
+
+//------------------------------------------------------------------------------    
+
+
+//------------------------------------------------------------------------------    
+
+
+    public static void main(String[] args) {
+        ClientStudy client = new ClientStudy();
+        client.streams();
+        client.createAndShowGUI();
+    }
+}
+
+
+
+    
+
+
+
