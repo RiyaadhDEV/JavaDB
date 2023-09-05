@@ -1,0 +1,180 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
+ */
+package client;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+public class Server {
+    
+    private static Socket clientSocket;
+    
+    private static ServerSocket serverSocket;
+    
+    private static ObjectInputStream in;
+    
+    private static ObjectOutputStream out;
+    
+    private static Object recievedObject;
+    
+    
+    public Server(){
+          try{
+        serverSocket = new ServerSocket(12345,1);
+        
+        clientSocket = serverSocket.accept();
+    System.out.println("Connection success");
+        }catch(IOException f){
+            System.out.println("Error in socket client");
+        } 
+          
+      
+    }
+    
+    public void getStreams(){
+         try{
+        in = new ObjectInputStream(clientSocket.getInputStream());
+        out = new ObjectOutputStream(clientSocket.getOutputStream());
+        out.flush();
+        } catch(IOException d){
+            System.out.println("Error in socket client");
+        }
+        
+    }
+   
+            
+        
+    
+        
+    
+    public void processClient(){
+        
+         
+        
+        
+    
+    
+        
+        ArrayList<Student> student = new ArrayList<>();
+        
+        while(true){
+            try{
+            
+            recievedObject = in.readObject();
+            
+            if(recievedObject instanceof Student){
+                
+                Student students = (Student)recievedObject;
+                
+                student.add(students);
+                
+            
+            
+        }else if(recievedObject instanceof String && ((String)recievedObject).equals("RETRIEVE")){
+            ArrayList clonedStudents = (ArrayList)student.clone();
+            
+            out.writeObject(clonedStudents);
+            out.flush();
+            
+        }else if(recievedObject instanceof String && ((String)recievedObject).equals("EXIT")){
+            
+        
+        } else if(recievedObject instanceof String && ((String)recievedObject).contains("1#")){
+            
+            String studentss = (String)recievedObject;
+            
+            String [] holder = studentss.split(" ");
+            
+            String searchValue = holder[0];
+            
+            ArrayList<Student> studentcloners = (ArrayList)student.clone();
+            ArrayList data  = new ArrayList();
+            for(int i = 0; i < studentcloners.size(); i++){
+                if(studentcloners.get(i).getName().equals(searchValue)||
+                   studentcloners.get(i).getId().equals(searchValue)||     
+                   Integer.toString(studentcloners.get(i).getScore()).equals(searchValue)){ 
+                        
+                  data.add(studentcloners.get(i));      }}
+            
+                  out.writeObject(data);
+                }else if(recievedObject instanceof String && ((String)recievedObject).contains("#2")){
+            
+            String studentsss = (String)recievedObject;
+            
+            String [] holder = studentsss.split(" ");
+            
+            String searchValues = holder[0];
+            
+            ArrayList<Student> studentclonerss = (ArrayList)student.clone();
+            ArrayList datas  = new ArrayList();
+            for(int i = 0; i < studentclonerss.size(); i++){
+                if(studentclonerss.get(i).getName().equals(searchValues)||
+                   studentclonerss.get(i).getId().equals(searchValues)||     
+                   Integer.toString(studentclonerss.get(i).getScore()).equals(searchValues)){ 
+                        
+                  datas.add(studentclonerss.get(i));      }}
+            
+                  out.writeObject(datas);
+                }else{
+            
+             String studentsss = (String)recievedObject;
+            
+          
+            
+            ArrayList<Student> studentclonerss = (ArrayList)student.clone();
+            ArrayList datass  = new ArrayList();
+            for(int i = 0; i < studentclonerss.size(); i++){
+                if(studentclonerss.get(i).getName().equals(studentsss)||
+                   studentclonerss.get(i).getId().equals(studentsss)||     
+       
+                        Integer.toString(studentclonerss.get(i).getScore()).equals(studentsss)){ 
+                        
+                  datass.remove(studentclonerss.get(i));      }}
+            
+                  out.writeObject(datass);
+            
+            
+            
+            
+        }  
+        
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        } catch(IOException d){
+            System.out.println("Error in process client");
+        } catch(ClassNotFoundException f){
+            
+            System.out.println("Error in process client");
+            
+        }}
+        
+        
+        
+        
+        
+        
+    }
+    
+    
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+      Server s = new Server();
+      s.getStreams();
+      s.processClient();
+    }
+    
+}
