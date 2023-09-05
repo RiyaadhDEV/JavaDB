@@ -1,0 +1,59 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package client;
+
+import java.io.Serializable;
+
+/**
+ *
+ * @author 215167023
+ */
+public class Movie implements Serializable {
+    
+    private String movieTitle;
+    private String directorTitle;
+    private String movieGenre;
+
+    public Movie() {
+    }
+
+    public Movie(String movieTitle, String directorTitle, String movieGenre) {
+        this.movieTitle = movieTitle;
+        this.directorTitle = directorTitle;
+        this.movieGenre = movieGenre;
+    }
+
+    public void setMovieTitle(String movieTitle) {
+        this.movieTitle = movieTitle;
+    }
+
+    public void setDirectorTitle(String directorTitle) {
+        this.directorTitle = directorTitle;
+    }
+
+    public void setMovieGenre(String movieGenre) {
+        this.movieGenre = movieGenre;
+    }
+
+    public String getMovieTitle() {
+        return movieTitle;
+    }
+
+    public String getDirectorTitle() {
+        return directorTitle;
+    }
+
+    public String getMovieGenre() {
+        return movieGenre;
+    }
+
+    @Override
+    public String toString() {
+        return "Movie{" + "movieTitle=" + movieTitle + ", directorTitle=" + directorTitle + ", movieGenre=" + movieGenre + '}';
+    }
+    
+    
+    
+}
