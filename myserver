@@ -1,0 +1,230 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package clientstudy;
+
+
+
+//Riyaadh Hassen 215167023
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+
+
+
+public class ServerStudy {
+    
+    private static ObjectOutputStream out;
+    private static ObjectInputStream in;
+    private static ServerSocket serverSocket;
+    private static Socket clientSocket;
+    private static Object receivedObject;
+   
+   
+ 
+
+//In the constructor listen for incoming client connections    
+public ServerStudy(){
+    
+           try {
+            serverSocket = new ServerSocket(12345, 1);
+            System.out.println("Waiting for client");
+            clientSocket = serverSocket.accept();
+           
+        } catch (IOException ioe) {
+            System.out.println("IO Exception " + ioe.getMessage());
+        }
+      
+    }
+
+
+
+//------------------------------------------------------------------------------    
+    
+//create the io streams
+public void getStreams(){
+try {
+            out = new ObjectOutputStream(clientSocket.getOutputStream());
+            out.flush();
+            in = new ObjectInputStream(clientSocket.getInputStream());
+        } catch (IOException ioe) {
+            System.out.println("Exception in getStreams()" + ioe.getMessage());
+        }
+
+}
+
+    
+    public void processClient() {
+        
+        
+     ArrayList<Student> studentRecords = new ArrayList<>();
+     
+     while(true){
+         
+         try{
+             
+         receivedObject = in.readObject();
+         
+         System.out.println("Recieved");
+         
+         if(receivedObject instanceof Student){
+           Student newStudent = (Student)receivedObject;
+           
+           studentRecords.add(newStudent);
+           
+           System.out.println("Added new student record:" + newStudent);
+           
+    }else if(receivedObject instanceof String && ((String)receivedObject).equals("RETRIEVE")){
+        ArrayList lstStudents = (ArrayList)studentRecords.clone();
+        out.writeObject(lstStudents);
+        out.flush();
+        System.out.println("list sent to client:" + studentRecords);
+        
+    }else if(receivedObject instanceof String && ((String)receivedObject).equals("EXIT")){
+        
+        closeConnection();
+        
+         }else if(receivedObject instanceof String && ((String)receivedObject).contains("1#")){
+             String name = (String) receivedObject;
+             
+             ArrayList data = new ArrayList();
+             data = searchStudentRecords(name,studentRecords);
+             out.writeObject(data);
+             System.out.println("sent back");
+             out.flush();
+             
+             /*    
+        String name = (String) receivedObject;
+        String[] holder = name.split(" ");
+       
+        String tester = holder[0];
+        System.out.println("in else");
+       
+        
+        ArrayList data = new ArrayList();
+        
+         ArrayList<Student> ostStudents = (ArrayList)studentRecords.clone();
+        
+        for(int i = 0;i<ostStudents.size();i++){
+        
+            if(Double.toString(ostStudents.get(i).getScore()).equals(tester)||
+               ostStudents.get(i).getId().equals(tester) ||
+               ostStudents.get(i).getName().equals(tester)){
+                data.add(ostStudents.get(i));}
+            }
+            
+            out.writeObject(data);
+            System.out.println("sent back");
+            
+            out.flush();
+             
+            */     
+         } else{ 
+             ArrayList datas = new ArrayList();
+             String name =(String)receivedObject;
+             deleteStudentRecords(name, studentRecords);
+             datas = deleteStudentRecords(name,studentRecords);
+             out.writeObject(datas);
+             System.out.println("sent back");
+            
+            out.flush();/*
+        String name =(String)receivedObject; 
+        System.out.println("in else");
+        
+        ArrayList data = new ArrayList();
+        
+         ArrayList<Student> postStudents = (ArrayList)studentRecords.clone();
+        
+        for(int i = 0;i<postStudents.size();i++){
+            if(Double.toString(postStudents.get(i).getScore()).equals(name) ||
+                postStudents.get(i).getId().equals(name)||
+                postStudents.get(i).getName().equals(name)){
+                postStudents.remove(i);
+            }
+        }
+           
+            
+            out.writeObject(postStudents);
+            System.out.println("sent back");
+            
+            out.flush();
+            
+         }*/
+        
+    
+        
+         } }catch (IOException f) {
+            System.out.println("Error in processClient " + f.getMessage());
+        }catch (ClassNotFoundException a) {
+            System.out.println("Error in processClient " + a.getMessage());
+        }
+     }
+    }
+    
+      public static  ArrayList<Student> searchStudentRecords(String objectInput, ArrayList<Student> studentRecords){
+        objectInput = (String) receivedObject;
+        String[] holder = objectInput.split(" ");     
+        String tester = holder[0];
+        System.out.println("in else");
+        ArrayList data = new ArrayList();    
+        ArrayList<Student> ostStudents = (ArrayList)studentRecords.clone();
+        for(int i = 0;i<ostStudents.size();i++){
+            if(Double.toString(ostStudents.get(i).getScore()).equals(tester)||
+               ostStudents.get(i).getId().equals(tester) ||
+               ostStudents.get(i).getName().equals(tester)){
+               data.add(ostStudents.get(i));}
+            }
+            return data; 
+      }
+      
+      
+      
+      public static  ArrayList<Student> deleteStudentRecords(String objectInput, ArrayList<Student> studentRecords){
+        objectInput = (String) receivedObject;
+        String name = objectInput;
+        System.out.println("in else");
+  ArrayList<Student> postStudents = (ArrayList)studentRecords.clone();
+        for(int i = 0;i<postStudents.size();i++){
+            if(Double.toString(postStudents.get(i).getScore()).equals(name) ||
+                postStudents.get(i).getId().equals(name)||
+                postStudents.get(i).getName().equals(name)){
+                postStudents.remove(i);
+            }
+        }
+            
+            return postStudents;
+      }
+            
+            
+   
+    private static void closeConnection() {
+  try {     out.writeObject("EXIT");
+            System.out.println("Exit sent");
+            out.flush();
+            out.close();
+            in.close();
+            clientSocket.close();
+            serverSocket.close();
+        } catch (IOException iod) {
+            System.out.println("Error closing " + iod.getMessage());
+        }
+    
+    } 
+  public static void main(String[] args) {
+                ServerStudy server = new ServerStudy();
+                server.getStreams();
+                server.processClient();  
+                
+        }
+    }
+
+    
+    
+
+
+
